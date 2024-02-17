@@ -1,59 +1,37 @@
 pipeline {
     agent any
-
     tools {
         maven "maven_home"
         jdk "Jdk_home"
     }
-
     stages {
-        stage('Stage 1: Code Checkout') {
+        stage('Stage 1 - Checkout Code') {
             steps {
-                // Checkout code from your repository
-                checkout scm
+                echo 'Hi, this is the first pipeline with Maven'
             }
         }
-
-        stage('Stage 2: Initialize') {
+        stage('Stage 2 - Compile Code') {
             steps {
-                echo "M2_HOME = ${env.M2_HOME}"
-                echo "JAVA_HOME = ${env.JAVA_HOME}"
-                echo "PATH = ${env.M2_HOME}\\bin;${env.JAVA_HOME}\\bin;${env.PATH}"
+                input('Do you want to proceed?')
+                bat "mvn cleam compile"
             }
         }
-
-        stage('Stage 3: Compile') {
+        stage('Stage 3 - Run Unit Test') {
             steps {
-                dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
-                    bat 'mvn -B -DskipTests clean compile'
-                }
+                echo "Running Unit Test"
+                bat "mvn test"
             }
         }
-
-        stage('Stage 4: Unit Test') {
+        stage('Stage 4 - Create Build') {
             steps {
-                dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
-                    bat 'mvn test'
-                }
-            }
-        }
-
-        stage('Stage 5 - Build') {
-            steps {
-                dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
-                    bat 'mvn -B -DskipTests clean package'
-                }
+                echo "Creating a build"
+                bat "mvn clean package"
             }
         }
     }
-
     post {
         failure {
-            // Send email if the build fails
-            emailext body: 'The build failed. Please check the Jenkins job for more details.',
-                     subject: 'Build Failure Notification',
-                     to: 'prasadgade20@gmail.com.com'
-            echo "Email Sent for Jenkins build failure"
+            echo "Email has been sent for Jenkins build failure"
         }
     }
 }
