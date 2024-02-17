@@ -28,10 +28,11 @@ pipeline {
                 bat "mvn clean package"
             }
         }
-    }
+    
     post {
         failure {
             echo "Email has been sent for Jenkins build failure"
         }
     }
+}
 }
