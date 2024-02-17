@@ -13,7 +13,7 @@ pipeline {
         stage('Stage 2 - Compile Code') {
             steps {
                 input('Do you want to proceed?')
-                bat "mvn cleam compile"
+                bat "mvn compile"
             }
         }
         stage('Stage 3 - Run Unit Test') {
@@ -25,14 +25,13 @@ pipeline {
         stage('Stage 4 - Create Build') {
             steps {
                 echo "Creating a build"
-                bat "mvn clean package"
+                bat "mvn package"
             }
         }
-    
+    }
     post {
         failure {
             echo "Email has been sent for Jenkins build failure"
         }
     }
-}
 }
