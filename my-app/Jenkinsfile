@@ -7,14 +7,38 @@ pipeline {
     }
 
     stages {
-        stage('Initialize') {
+        stage('Stage 1: Code Checkout') {
+            steps {
+                // Checkout code from your repository
+                checkout scm
+            }
+        }
+
+        stage('Stage 2: Initialize') {
             steps {
                 echo "M2_HOME = ${env.M2_HOME}"
                 echo "JAVA_HOME = ${env.JAVA_HOME}"
                 echo "PATH = ${env.M2_HOME}\\bin;${env.JAVA_HOME}\\bin;${env.PATH}"
             }
         }
-        stage('Build') {
+
+        stage('Stage 3: Compile') {
+            steps {
+                dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
+                    bat 'mvn -B -DskipTests clean compile'
+                }
+            }
+        }
+
+        stage('Stage 4: Unit Test') {
+            steps {
+                dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
+                    bat 'mvn test'
+                }
+            }
+        }
+
+        stage('Stage 5 - Build') {
             steps {
                 dir("C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Pipeline_demo\\my-app") {
                     bat 'mvn -B -DskipTests clean package'
@@ -22,12 +46,14 @@ pipeline {
             }
         }
     }
+
     post {
-        always {
-            junit(
-                allowEmptyResults: true,
-                testResults: '*/test-reports/*.xml'
-            )
+        failure {
+            // Send email if the build fails
+            emailext body: 'The build failed. Please check the Jenkins job for more details.',
+                     subject: 'Build Failure Notification',
+                     to: 'prasadgade20@gmail.com.com'
+            echo "Email Sent for Jenkins build failure"
         }
     }
 }
